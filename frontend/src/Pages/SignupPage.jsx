@@ -1,87 +1,83 @@
+import { set } from "mongoose";
 import React from "react";
-import { Container, Box } from "@chakra-ui/react";
+import { useState } from "react";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const SignupPage = () => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible((prevState) => !prevState);
+  };
+
   return (
-    <div class="bg-white relative ">
-      <div
-        class="flex flex-col items-center justify-between pt-0 pr-10 pb-0 pl-10 mt-0 mr-auto mb-0 ml-auto max-w-7xl
-      xl:px-5 lg:flex-row"
-      >
-        <div class="flex flex-col items-center w-full pt-5 pr-10 pb-20 pl-10 lg:pt-20 lg:flex-row">
-          <div class="w-full bg-cover relative max-w-md lg:max-w-2xl lg:w-7/12">
-            <div class="flex flex-col items-center justify-center w-full h-full relative lg:pr-10">
+    <div class="relative bg-white">
+      <div class="mb-0 ml-auto mr-auto mt-0 flex max-w-7xl flex-col items-center justify-between pb-0 pl-10 pr-10 pt-0 lg:flex-row xl:px-5">
+        <div class="flex w-full flex-col items-center pb-20 pl-10 pr-10 pt-5 lg:flex-row lg:pt-20">
+          <div class="relative w-full max-w-md bg-cover lg:w-7/12 lg:max-w-2xl">
+            <div class="relative flex h-full w-full flex-col items-center justify-center lg:pr-10">
               <img
-                src="https://res.cloudinary.com/macxenon/image/upload/v1631570592/Run_-_Health_qcghbu.png"
+                src="https://static.vecteezy.com/system/resources/previews/003/689/228/original/online-registration-or-sign-up-login-for-account-on-smartphone-app-user-interface-with-secure-password-mobile-application-for-ui-web-banner-access-cartoon-people-illustration-vector.jpg"
                 class="btn-"
               />
             </div>
           </div>
-          <div class="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
-            <div
-              class="flex flex-col items-start justify-start pt-10 pr-10 pb-10 pl-10 bg-white shadow-2xl rounded-xl
-            relative z-10"
-            >
-              <p class="w-full text-4xl font-medium text-center leading-snug font-serif">
+          <div class="relative z-10 mb-0 ml-0 mr-0 mt-20 w-full max-w-2xl lg:mt-0 lg:w-5/12">
+            <div class="relative z-10 flex flex-col items-start justify-start rounded-xl bg-white pb-10 pl-10 pr-10 pt-10 shadow-2xl">
+              <p class="w-full text-center font-serif text-4xl font-medium leading-snug">
                 Sign up for an account
               </p>
-              <div class="w-full mt-6 mr-0 mb-0 ml-0 relative space-y-8">
+              <div class="relative mb-0 ml-0 mr-0 mt-6 w-full space-y-8">
                 <div class="relative">
-                  <p
-                    class="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600
-                  absolute"
-                  >
+                  <p class="absolute -mt-3 mb-0 ml-2 mr-0 bg-white pb-0 pl-2 pr-2 pt-0 font-medium text-gray-600">
                     Username
                   </p>
                   <input
                     placeholder="John"
                     type="text"
-                    class="border placeholder-gray-400 focus:outline-none
-                  focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
-                  border-gray-300 rounded-md"
+                    class="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                 </div>
                 <div class="relative">
-                  <p class="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600 absolute">
+                  <p class="absolute -mt-3 mb-0 ml-2 mr-0 bg-white pb-0 pl-2 pr-2 pt-0 font-medium text-gray-600">
                     Email
                   </p>
                   <input
-                    placeholder="123@ex.com"
+                    placeholder="johndoe@gmail.com"
                     type="text"
-                    class="border placeholder-gray-400 focus:outline-none
-                  focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
-                  border-gray-300 rounded-md"
+                    class="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                 </div>
                 <div class="relative">
-                  <p
-                    class="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600
-                  absolute"
-                  >
+                  <p class="absolute -mt-3 mb-0 ml-2 mr-0 bg-white pb-0 pl-2 pr-2 pt-0 font-medium text-gray-600">
                     Password
                   </p>
                   <input
                     placeholder="Password"
-                    type="password"
-                    class="border placeholder-gray-400 focus:outline-none
-                  focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
-                  border-gray-300 rounded-md"
+                    type={isPasswordVisible ? "text" : "password"}
+                    class="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
+                  <button
+                    className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {isPasswordVisible ? (
+                      <AiOutlineEyeInvisible />
+                    ) : (
+                      <AiOutlineEye />
+                    )}
+                  </button>
                 </div>
                 <div class="relative">
-                  <a
-                    class="w-full inline-block pt-4 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-indigo-500
-                  rounded-lg transition duration-200 hover:bg-indigo-600 ease"
-                  >
-                    Submit
+                  <a class="ease inline-block w-full rounded-lg bg-indigo-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-indigo-600">
+                    {" "}
+                    Submit{" "}
                   </a>
                 </div>
               </div>
             </div>
             <svg
               viewbox="0 0 91 91"
-              class="absolute top-0 left-0 z-0 w-32 h-32 -mt-12 -ml-12 text-yellow-300
-            fill-current"
+              class="absolute left-0 top-0 z-0 -ml-12 -mt-12 h-32 w-32 fill-current text-red-400"
             >
               <g stroke="none" strokewidth="1" fillrule="evenodd">
                 <g fillrule="nonzero">
@@ -172,8 +168,7 @@ const SignupPage = () => {
             </svg>
             <svg
               viewbox="0 0 91 91"
-              class="absolute bottom-0 right-0 z-0 w-32 h-32 -mb-12 -mr-12 text-indigo-500
-            fill-current"
+              class="absolute bottom-0 right-0 z-0 -mb-12 -mr-12 h-32 w-32 fill-current text-violet-400"
             >
               <g stroke="none" strokewidth="1" fillrule="evenodd">
                 <g fillrule="nonzero">
