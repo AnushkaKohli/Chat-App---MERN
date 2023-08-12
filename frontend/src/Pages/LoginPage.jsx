@@ -3,21 +3,16 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
-const SignupPage = () => {
-  const [name, setName] = useState("");
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [displayPicture, setDisplayPicture] = useState("");
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
     setIsPasswordVisible((prevState) => !prevState);
   };
 
-  const postDetails = (pictures) => {};
-
-  const handleSignup = () => {};
+  const handleLogin = () => {};
 
   return (
     <div className="relative bg-white">
@@ -26,7 +21,7 @@ const SignupPage = () => {
           <div className="relative w-full max-w-md bg-cover lg:w-7/12 lg:max-w-2xl">
             <div className="relative flex h-full w-full flex-col items-center justify-center lg:pr-10">
               <img
-                src="https://static.vecteezy.com/system/resources/previews/003/689/230/non_2x/online-registration-or-sign-up-login-for-account-on-smartphone-app-user-interface-with-secure-password-mobile-application-for-ui-web-banner-access-cartoon-people-illustration-vector.jpg"
+                src="https://static.vecteezy.com/system/resources/previews/005/879/539/non_2x/cloud-computing-modern-flat-concept-for-web-banner-design-man-enters-password-and-login-to-access-cloud-storage-for-uploading-and-processing-files-illustration-with-isolated-people-scene-free-vector.jpg"
                 className="btn-"
               />
             </div>
@@ -34,20 +29,9 @@ const SignupPage = () => {
           <div className="relative z-10 mb-0 ml-0 mr-10 mt-20 w-full max-w-2xl lg:mt-0 lg:w-5/12">
             <div className="relative z-10 flex flex-col items-start justify-start rounded-xl bg-white pb-10 pl-10 pr-10 pt-10 shadow-2xl">
               <p className="w-full text-center font-serif text-4xl font-medium leading-snug">
-                Sign up for an account
+                Welcome Back!
               </p>
               <div className="relative mb-0 ml-0 mr-0 mt-6 w-full space-y-8">
-                <div className="relative">
-                  <p className="absolute -mt-3 mb-0 ml-2 mr-0 bg-white pb-0 pl-2 pr-2 pt-0 font-medium text-gray-600">
-                    Name
-                  </p>
-                  <input
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="John"
-                    type="text"
-                    className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
-                  />
-                </div>
                 <div className="relative">
                   <p className="absolute -mt-3 mb-0 ml-2 mr-0 bg-white pb-0 pl-2 pr-2 pt-0 font-medium text-gray-600">
                     Email
@@ -81,53 +65,32 @@ const SignupPage = () => {
                   </button>
                 </div>
                 <div className="relative">
-                  <p className="absolute -mt-3 mb-0 ml-2 mr-0 bg-white pb-0 pl-2 pr-2 pt-0 font-medium text-gray-600">
-                    Confirm Password
-                  </p>
-                  <input
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm Password"
-                    type={isPasswordVisible ? "text" : "password"}
-                    className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
-                  />
-                  <button
-                    className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600"
-                    onClick={togglePasswordVisibility}
+                  <a
+                    onClick={handleLogin}
+                    className="ease inline-block w-full rounded-lg bg-violet-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-violet-600"
                   >
-                    {isPasswordVisible ? (
-                      <AiOutlineEyeInvisible />
-                    ) : (
-                      <AiOutlineEye />
-                    )}
-                  </button>
-                </div>
-                <div className="relative">
-                  <p className="absolute -mt-3 mb-0 ml-2 mr-0 bg-white pb-0 pl-2 pr-2 pt-0 font-medium text-gray-600">
-                    Display Picture
-                  </p>
-                  <input
-                    onChange={(e) => postDetails(e.target.files[0])}
-                    type="file"
-                    accept="image/*"
-                    className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
-                  />
+                    Login
+                  </a>
                 </div>
                 <div className="relative">
                   <a
-                    onClick={handleSignup}
-                    className="ease inline-block w-full rounded-lg bg-violet-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-violet-600"
+                    onClick={() => {
+                      setEmail("guest@example.com");
+                      setPassword("123456");
+                    }}
+                    className="ease inline-block w-full rounded-lg bg-orange-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-orange-600"
                   >
-                    Sign Up
+                    Get Guest Credentials
                   </a>
                 </div>
                 <div className="relative">
                   <p className="text-center text-gray-600">
-                    Already have an account? &nbsp;
+                    New to Converse? &nbsp;
                     <Link
-                      to="/login"
+                      to="/signup"
                       className="text-violet-500 hover:text-violet-600"
                     >
-                      Login
+                      SignUp
                     </Link>
                   </p>
                 </div>
@@ -135,7 +98,7 @@ const SignupPage = () => {
             </div>
             <svg
               viewBox="0 0 91 91"
-              className="absolute left-0 top-0 z-0 -ml-12 -mt-12 h-32 w-32 fill-current text-[#FE6ABB]"
+              className="absolute left-0 top-0 z-0 -ml-12 -mt-12 h-32 w-32 fill-current text-[#FD711A]"
             >
               <g stroke="none" strokeWidth="1" fillRule="evenodd">
                 <g fillRule="nonzero">
@@ -226,8 +189,7 @@ const SignupPage = () => {
             </svg>
             <svg
               viewBox="0 0 91 91"
-              className="absolute bottom-0 right-0 z-0 -mb-12 -mr-12 h-32 w-32 fill-current 
-              text-[#ae88ff]"
+              className="absolute bottom-0 right-0 z-0 -mb-12 -mr-12 h-32 w-32 fill-current text-[#425feb]"
             >
               <g stroke="none" strokeWidth="1" fillRule="evenodd">
                 <g fillRule="nonzero">
@@ -323,4 +285,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default LoginPage;
