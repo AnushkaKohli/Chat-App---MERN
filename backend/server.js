@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const chats = require("./data/data");
+const connectDatabase = require("./config/database");
 
 /* It is creating an instance of the Express application. It initializes the app variable with the Express module, allowing us to use the various functionalities provided by Express to build our web application. */
 const app = express();
@@ -15,6 +16,8 @@ app.use(
     origin: "*",
   })
 );
+
+connectDatabase();
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

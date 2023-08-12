@@ -34,7 +34,7 @@ const SignupPage = () => {
           <div className="relative z-10 mb-0 ml-0 mr-10 mt-20 w-full max-w-2xl lg:mt-0 lg:w-5/12">
             <div className="relative z-10 flex flex-col items-start justify-start rounded-xl bg-white pb-10 pl-10 pr-10 pt-10 shadow-2xl">
               <p className="w-full text-center font-serif text-4xl font-medium leading-snug">
-                Sign up for an account
+                Sign up on Chitti
               </p>
               <div className="relative mb-0 ml-0 mr-0 mt-6 w-full space-y-8">
                 <div className="relative">

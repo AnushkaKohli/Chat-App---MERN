@@ -85,7 +85,7 @@ const LoginPage = () => {
                 </div>
                 <div className="relative">
                   <p className="text-center text-gray-600">
-                    New to Converse? &nbsp;
+                    New to Chitti? &nbsp;
                     <Link
                       to="/signup"
                       className="text-violet-500 hover:text-violet-600"
