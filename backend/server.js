@@ -1,7 +1,10 @@
 const express = require("express");
 const dotenv = require("dotenv");
+
 const chats = require("./data/data");
 const connectDatabase = require("./config/database");
+const userRoutes = require("./routes/userRoutes");
+const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 
 /* It is creating an instance of the Express application. It initializes the app variable with the Express module, allowing us to use the various functionalities provided by Express to build our web application. */
 const app = express();
@@ -16,6 +19,7 @@ app.use(
     origin: "*",
   })
 );
+app.use(express.json());
 
 connectDatabase();
 
@@ -23,15 +27,11 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.get("/api/chat", (req, res) => {
-  res.send(chats);
-});
+app.use("/api/user", userRoutes);
 
-app.get("/api/chat/:id", (req, res) => {
-  // console.log(req.params.id);
-  const singleChat = chats.find((chat) => chat._id === req.params.id);
-  res.send(singleChat);
-});
+//If any of the url is not found then this function is invoked
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Server started at port 5000");

@@ -1,6 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
+
+import { useToast } from "@chakra-ui/react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const SignupPage = () => {
@@ -9,15 +12,141 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayPicture, setDisplayPicture] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const toast = useToast();
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
   const togglePasswordVisibility = () => {
-    setIsPasswordVisible((prevState) => !prevState);
+    setIsPasswordVisible(() => !isPasswordVisible);
+  };
+  const toggleConfirmPasswordVisibility = () => {
+    setIsConfirmPasswordVisible(() => !isConfirmPasswordVisible);
   };
 
-  const postDetails = (pictures) => {};
+  const postDetails = (pictures) => {
+    setLoading(true);
+    if (pictures == undefined) {
+      toast({
+        title: "Image Missing!",
+        description: "Please select an image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
 
-  const handleSignup = () => {};
+    if (pictures.type === "image/jpeg" || pictures.type === "image/png") {
+      /* This is creating a new instance of the FormData class in JavaScript. */
+      const data = new FormData();
+      data.append("file", pictures);
+      //name chitti should be same as the preset name used in cloudinary
+      data.append("upload_preset", "chitti");
+      //name anushkakohli should be same as the cloud name used in cloudinary
+      data.append("cloud_name", "anushkakohli");
+      fetch("https://api.cloudinary.com/v1_1/anushkakohli/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          setDisplayPicture(data.url.toString());
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    } else {
+      toast({
+        title: "Invalid Image",
+        description: "Please select a valid image!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+  };
+
+  const handleSignup = async () => {
+    setLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
+      toast({
+        title: "Empty Fields",
+        description: "Please fill all the fields!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please check your passwords!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:5000/api/user/signup",
+        {
+          name,
+          email,
+          password,
+          displayPicture,
+        },
+        config
+      );
+
+      toast({
+        title: "Registered Successfull",
+        description: "You have been registered successfully!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      navigate("http://localhost:5000/api/user/chats");
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+  };
 
   return (
     <div className="relative bg-white">
@@ -45,6 +174,7 @@ const SignupPage = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John"
                     type="text"
+                    required={true}
                     className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                 </div>
@@ -56,6 +186,7 @@ const SignupPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="johndoe@gmail.com"
                     type="text"
+                    required={true}
                     className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                 </div>
@@ -67,6 +198,7 @@ const SignupPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     type={isPasswordVisible ? "text" : "password"}
+                    required={true}
                     className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                   <button
@@ -87,14 +219,15 @@ const SignupPage = () => {
                   <input
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm Password"
-                    type={isPasswordVisible ? "text" : "password"}
+                    type={isConfirmPasswordVisible ? "text" : "password"}
+                    required={true}
                     className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                   <button
                     className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600"
-                    onClick={togglePasswordVisibility}
+                    onClick={toggleConfirmPasswordVisibility}
                   >
-                    {isPasswordVisible ? (
+                    {isConfirmPasswordVisible ? (
                       <AiOutlineEyeInvisible />
                     ) : (
                       <AiOutlineEye />
@@ -113,12 +246,34 @@ const SignupPage = () => {
                   />
                 </div>
                 <div className="relative">
-                  <a
-                    onClick={handleSignup}
-                    className="ease inline-block w-full rounded-lg bg-violet-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-violet-600"
-                  >
-                    Sign Up
-                  </a>
+                  {loading ? (
+                    <svg
+                      className={`${
+                        loading ? "animate-spin" : " "
+                      } inline-block w-full text-center`}
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g className="spinner_Wezc">
+                        <circle cx="12" cy="2.5" r="1.5" opacity=".14" />
+                        <circle cx="16.75" cy="3.77" r="1.5" opacity=".29" />
+                        <circle cx="20.23" cy="7.25" r="1.5" opacity=".43" />
+                        <circle cx="21.50" cy="12.00" r="1.5" opacity=".57" />
+                        <circle cx="20.23" cy="16.75" r="1.5" opacity=".71" />
+                        <circle cx="16.75" cy="20.23" r="1.5" opacity=".86" />
+                        <circle cx="12" cy="21.5" r="1.5" />
+                      </g>
+                    </svg>
+                  ) : (
+                    <a
+                      onClick={handleSignup}
+                      className={`ease inline-block w-full rounded-lg bg-violet-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-violet-600`}
+                    >
+                      Sign Up
+                    </a>
+                  )}
                 </div>
                 <div className="relative">
                   <p className="text-center text-gray-600">

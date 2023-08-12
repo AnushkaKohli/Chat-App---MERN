@@ -1,18 +1,79 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
+
+import { useToast } from "@chakra-ui/react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const toast = useToast();
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
-    setIsPasswordVisible((prevState) => !prevState);
+    setIsPasswordVisible(() => !isPasswordVisible);
   };
 
-  const handleLogin = () => {};
+  const handleLogin = async () => {
+    setLoading(true);
+    if (!email || !password) {
+      toast({
+        title: "Empty Fields",
+        description: "Please fill all the fields!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:5000/api/user/login",
+        {
+          email,
+          password,
+        },
+        config
+      );
+
+      toast({
+        title: "Login Successfull",
+        description: "You have been logged in successfully!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      navigate("http://localhost:5000/api/user/chats");
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+  };
 
   return (
     <div className="relative bg-white">
@@ -40,6 +101,8 @@ const LoginPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="johndoe@gmail.com"
                     type="text"
+                    value={email}
+                    required={true}
                     className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                 </div>
@@ -51,6 +114,8 @@ const LoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     type={isPasswordVisible ? "text" : "password"}
+                    value={password}
+                    required={true}
                     className="mb-0 ml-0 mr-0 mt-2 block w-full rounded-md border border-gray-300 bg-white pb-4 pl-4 pr-4 pt-4 text-base placeholder-gray-400 focus:border-black focus:outline-none"
                   />
                   <button
@@ -65,18 +130,40 @@ const LoginPage = () => {
                   </button>
                 </div>
                 <div className="relative">
-                  <a
-                    onClick={handleLogin}
-                    className="ease inline-block w-full rounded-lg bg-violet-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-violet-600"
-                  >
-                    Login
-                  </a>
+                  {loading ? (
+                    <svg
+                      className={`${
+                        loading ? "animate-spin" : " "
+                      } inline-block w-full text-center`}
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g className="spinner_Wezc">
+                        <circle cx="12" cy="2.5" r="1.5" opacity=".14" />
+                        <circle cx="16.75" cy="3.77" r="1.5" opacity=".29" />
+                        <circle cx="20.23" cy="7.25" r="1.5" opacity=".43" />
+                        <circle cx="21.50" cy="12.00" r="1.5" opacity=".57" />
+                        <circle cx="20.23" cy="16.75" r="1.5" opacity=".71" />
+                        <circle cx="16.75" cy="20.23" r="1.5" opacity=".86" />
+                        <circle cx="12" cy="21.5" r="1.5" />
+                      </g>
+                    </svg>
+                  ) : (
+                    <a
+                      onClick={handleLogin}
+                      className={`ease inline-block w-full rounded-lg bg-violet-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-violet-600`}
+                    >
+                      Login
+                    </a>
+                  )}
                 </div>
                 <div className="relative">
                   <a
                     onClick={() => {
                       setEmail("guest@example.com");
-                      setPassword("123456");
+                      setPassword("guest123");
                     }}
                     className="ease inline-block w-full rounded-lg bg-orange-500 pb-4 pl-5 pr-5 pt-4 text-center text-xl font-medium text-white transition duration-200 hover:bg-orange-600"
                   >
