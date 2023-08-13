@@ -77,4 +77,43 @@ const getChats = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { accessChat, getChats };
+const createGroupChat = asyncHandler(async (req, res) => {
+  if (!req.body.users || !req.body.name) {
+    return res.status(400).send({
+      message: "Please enter a chat name and select atleast one user",
+    });
+  }
+
+  /* This is parsing the `users` property from the request body, which is expected to be a JSON string. It converts the JSON string into a JavaScript object and assigns it to the `users` variable. This allows you to access and manipulate the user data as an object instead of a string. */
+  var users = JSON.parse(req.body.users);
+
+  //To make sure that there are atleast 2 users in the group chat
+  if (users.length < 2) {
+    return res.status(400).send({
+      message: "At least two users are required for group chat",
+    });
+  }
+
+  //To automatically add the logged in user to the group chat
+  users.push(req.user);
+
+  try {
+    const groupChat = await Chat.create({
+      chatName: req.body.name,
+      isGroupChat: true,
+      users: users,
+      groupAdmin: req.user,
+    });
+
+    const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+
+    res.status(200).send(fullGroupChat);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+});
+
+module.exports = { accessChat, getChats, createGroupChat };
