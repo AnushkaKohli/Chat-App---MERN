@@ -3,10 +3,10 @@ const router = express.Router();
 
 //Importing the controllers
 const authorizeUser = require("../middlewares/authMiddleware");
-const { accessChat } = require("../controllers/chatControllers");
+const { accessChat, getChats } = require("../controllers/chatControllers");
 
 router.route("/").post(authorizeUser, accessChat);
-// router.route("/").get(authorizeUser, getChats);
+router.route("/").get(authorizeUser, getChats);
 // router.route("/group").post(authorizeUser, createGroupChat);
 // router.route("/group/rename").put(authorizeUser, renameGroupChat);
 // router.route("group/remove").put(authorizeUser, removeFromGroup);
