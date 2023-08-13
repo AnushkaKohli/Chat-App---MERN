@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const chats = require("./data/data");
 const connectDatabase = require("./config/database");
 const userRoutes = require("./routes/userRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 
 /* It is creating an instance of the Express application. It initializes the app variable with the Express module, allowing us to use the various functionalities provided by Express to build our web application. */
@@ -28,6 +29,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", userRoutes);
+app.use("/api/chat", chatRoutes);
 
 //If any of the url is not found then this function is invoked
 app.use(notFound);
