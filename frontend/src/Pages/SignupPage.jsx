@@ -17,6 +17,12 @@ const SignupPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
+  //If the user is logged in, navigate them to chats page
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userInfo"));
+    if (user) navigate("http://localhost:5000/api/user/chats");
+  }, [navigate]);
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);

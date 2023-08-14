@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
@@ -13,6 +13,12 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const toast = useToast();
+
+  //If the user is logged in, navigate them to chats page
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userInfo"));
+    if (user) navigate("http://localhost:5000/api/user/chats");
+  }, [navigate]);
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
