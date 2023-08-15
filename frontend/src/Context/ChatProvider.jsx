@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ChatContext = createContext();
@@ -10,7 +10,7 @@ const ChatProvider = ({ children }) => {
     setUser(userInfo);
 
     if (!userInfo) {
-      navigate("http://localhost:5000/api/user/login");
+      navigate("/login");
     }
   }, [navigate]);
 

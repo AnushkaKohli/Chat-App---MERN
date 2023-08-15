@@ -17,7 +17,7 @@ const LoginPage = () => {
   //If the user is logged in, navigate them to chats page
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userInfo"));
-    if (user) navigate("http://localhost:5000/api/user/chats");
+    // if (user) navigate("/chats");
   }, [navigate]);
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -66,7 +66,7 @@ const LoginPage = () => {
 
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
-      navigate("http://localhost:5000/api/user/chats");
+      navigate("/chats");
     } catch (error) {
       toast({
         title: "Something went wrong",
