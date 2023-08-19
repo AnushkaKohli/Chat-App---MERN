@@ -17,7 +17,7 @@ const LoginPage = () => {
   //If the user is logged in, navigate them to chats page
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userInfo"));
-    // if (user) navigate("/chats");
+    if (user) navigate("/chats");
   }, [navigate]);
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
