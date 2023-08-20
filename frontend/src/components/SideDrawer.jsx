@@ -24,6 +24,7 @@ import {
   Input,
   InputRightElement,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { FaSearch } from "react-icons/fa";
 import { BsChevronDown, BsBellFill } from "react-icons/bs";
@@ -42,7 +43,7 @@ const SideDrawer = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { user } = chatState();
+  const { user, setSelectedChat, chats, setChats } = chatState();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -77,14 +78,6 @@ const SideDrawer = () => {
       );
       setLoading(false);
       setSearchResult(data);
-
-      console.log(searchResult);
-      // console.log(
-      //   searchResult?.map((user) => {
-      //     console.log(user.name);
-      //     console.log(user.email);
-      //   })
-      // );
     } catch (error) {
       toast({
         title: "Error!",
@@ -98,7 +91,41 @@ const SideDrawer = () => {
     }
   };
 
-  const accessChat = async (userId) => {};
+  const accessChat = async (userId) => {
+    try {
+      setLoadingChat(true);
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      //Accessing the chat
+      const { data } = await axios.post(
+        `http://localhost:5000/api/chat`,
+        { userId },
+        config
+      );
+
+      if (!chats.find((chat) => chat._id === data._id))
+        setChats([data, ...chats]);
+
+      setSelectedChat(data);
+      setLoadingChat(false);
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Error fetching the chat",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
 
   return (
     <div>
@@ -120,7 +147,7 @@ const SideDrawer = () => {
 
         <Text
           fontSize="2xl"
-          fontFamily="georgia"
+          fontFamily="roboto"
           fontWeight="bold"
           color="#8b5cf6"
         >
@@ -207,6 +234,8 @@ const SideDrawer = () => {
                 />
               ))
             )}
+
+            {loadingChat && <Spinner ml="auto" display="flex" />}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
