@@ -147,7 +147,7 @@ const SideDrawer = () => {
 
         <Text
           fontSize="2xl"
-          fontFamily="roboto"
+          fontFamily="times new roman"
           fontWeight="bold"
           color="#8b5cf6"
         >
