@@ -8,6 +8,7 @@ import { CgAdd } from "react-icons/cg";
 import { chatState } from "../Context/ChatProvider";
 import ChatLoading from "./ChatLoading";
 import { getSender } from "../config/chatLogic";
+import GroupChatModal from "./GroupChatModal";
 
 const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
@@ -68,13 +69,16 @@ const MyChats = ({ fetchAgain }) => {
         alignItems="center"
       >
         Chats
-        <Button
-          display="flex"
-          fontSize={{ base: "16px", md: "10px", lg: "16px" }}
-          rightIcon={<CgAdd />}
-        >
-          New Group Chat
-        </Button>
+        <GroupChatModal>
+          <Button
+            display="flex"
+            w="10rem"
+            fontSize={{ base: "16px", md: "10px", lg: "16px" }}
+            rightIcon={<CgAdd />}
+          >
+            New Group Chat
+          </Button>
+        </GroupChatModal>
       </Box>
 
       <Box

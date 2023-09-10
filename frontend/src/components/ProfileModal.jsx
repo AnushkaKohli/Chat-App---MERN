@@ -22,13 +22,13 @@ const ProfileModal = ({ user, children }) => {
       {children ? (
         <span onClick={onOpen}>{children}</span>
       ) : (
-        <Button variant="ghost">
+        <Button variant="ghost" onClick={onOpen}>
           <AiOutlineUser />
-          <Text>View Profile</Text>
+          <Text p={1}>View Profile</Text>
         </Button>
       )}
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent h="400px">
           <ModalHeader
