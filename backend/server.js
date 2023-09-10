@@ -15,12 +15,12 @@ const app = express();
 dotenv.config();
 
 /* cors module is a middleware for enabling Cross-Origin Resource Sharing (CORS) in the Express application. */
-const cors = require("cors");
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+// const cors = require("cors");
+// app.use(
+//   cors({
+//     origin: "*",
+//   })
+// );
 app.use(express.json());
 
 connectDatabase();
@@ -37,6 +37,19 @@ app.use("/api/message", messageRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(process.env.PORT || 5000, () => {
+const server = app.listen(process.env.PORT || 5000, () => {
   console.log("Server started at port 5000");
+});
+
+const io = require("socket.io")(server, {
+  // It will wait for 60 seconds before disconnecting the user to save the bandwidth
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:5000",
+  },
+});
+
+/* This is setting up a listener for the "connection" event in the Socket.IO library. */
+io.on("connection", (socket) => {
+  console.log("Connected to socket.io");
 });
