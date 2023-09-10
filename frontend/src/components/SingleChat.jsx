@@ -1,16 +1,90 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { chatState } from "../Context/ChatProvider";
-import { IconButton } from "@chakra-ui/react";
-import { IoArrowBack } from "react-icons/io5";
-
 import { getSender, getSenderFull, getSenderImage } from "../config/chatLogic";
 import ProfileModal from "./ProfileModal";
 import UpdateGroupChatModal from "./updateGroupChatModal";
+import ScrollableChat from "./Chat/ScrollableChat";
+import { IoArrowBack } from "react-icons/io5";
+import { IconButton, Spinner, useToast } from "@chakra-ui/react";
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat } = chatState();
-  console.log(selectedChat);
+  //console.log(selectedChat);
+  const toast = useToast();
 
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState();
+
+  const getMessages = async () => {
+    if (!selectedChat) return;
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.get(
+        `http://localhost:5000/api/message/${selectedChat._id}`,
+        config
+      );
+
+      console.log(messages);
+      setMessages(data);
+      setLoading(false);
+    } catch (error) {
+      toast({
+        title: "Error. Cannot Get Messages",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+
+  useEffect(() => {
+    getMessages();
+  }, [selectedChat]);
+
+  const sendMessage = async (e) => {
+    if (e.key === "Enter" && newMessage) {
+      try {
+        const config = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+
+        setNewMessage("");
+        const { data } = await axios.post(
+          "http://localhost:5000/api/message",
+          { content: newMessage, chatId: selectedChat },
+          config
+        );
+        console.log(data);
+        // New message is appended to the messages array
+        setMessages([...messages, data]);
+      } catch (error) {
+        toast({
+          title: "An error occurred!",
+          description: error.response.data.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      }
+    }
+  };
+  const typingHandler = (e) => {
+    setNewMessage(e.target.value);
+
+    // Typing indicator logic
+  };
   return (
     <div>
       {selectedChat ? (
@@ -46,6 +120,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <UpdateGroupChatModal
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
+                  getMessages={getMessages}
                 />
               </>
             )}
@@ -53,34 +128,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
           {/* Middle Chat */}
           <div className="relative w-full p-6 overflow-y-auto h-[40rem]">
-            <ul className="space-y-2">
-              <li className="flex justify-start">
-                <div className="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow">
-                  <span className="block">Hi</span>
-                </div>
-              </li>
-              <li className="flex justify-end">
-                <div className="relative max-w-xl px-4 py-2 text-gray-700 bg-gray-100 rounded shadow">
-                  <span className="block">Hiiii</span>
-                </div>
-              </li>
-              <li className="flex justify-end">
-                <div className="relative max-w-xl px-4 py-2 text-gray-700 bg-gray-100 rounded shadow">
-                  <span className="block">how are you?</span>
-                </div>
-              </li>
-              <li className="flex justify-start">
-                <div className="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow">
-                  <span className="block">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                  </span>
-                </div>
-              </li>
-            </ul>
+            {loading ? (
+              <Spinner
+                size="xl"
+                w={20}
+                h={20}
+                alignSelf="center"
+                margin="auto"
+              />
+            ) : (
+              <ScrollableChat messages={messages} />
+            )}
           </div>
 
           {/* Send Chat Container */}
-          <div className="flex items-center justify-between w-full p-3 border-t border-gray-300">
+          <div
+            className="flex items-center justify-between w-full p-3 border-t border-gray-300"
+            onKeyDown={sendMessage}
+          >
             <button>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -116,10 +181,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
             <input
               type="text"
-              placeholder="Message"
+              placeholder="Enter a message..."
               className="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
               name="message"
               required
+              onChange={typingHandler}
             />
             <button>
               <svg

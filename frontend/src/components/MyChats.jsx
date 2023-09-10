@@ -28,7 +28,7 @@ const MyChats = ({ fetchAgain }) => {
         "http://localhost:5000/api/chat",
         config
       );
-      console.log(data);
+      //console.log(data);
       setChats(data);
     } catch (error) {
       toast({

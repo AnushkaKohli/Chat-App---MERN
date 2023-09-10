@@ -21,7 +21,7 @@ import { chatState } from "../Context/ChatProvider";
 import axios from "axios";
 import UserListItem from "./User/UserListItem";
 
-const updateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
+const updateGroupChatModal = ({ fetchAgain, setFetchAgain, getMessages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { selectedChat, setSelectedChat, user } = chatState();
 
@@ -94,6 +94,7 @@ const updateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
       );
       user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
       setFetchAgain(!fetchAgain);
+      getMessages();
       setLoading(false);
     } catch (error) {
       toast({
