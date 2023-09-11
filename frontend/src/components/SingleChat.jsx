@@ -8,14 +8,24 @@ import ScrollableChat from "./Chat/ScrollableChat";
 import { IoArrowBack } from "react-icons/io5";
 import { IconButton, Spinner, useToast } from "@chakra-ui/react";
 
+import io from "socket.io-client";
+const ENDPOINT = "http://localhost:5000";
+var socket, selectedChatCompare;
+
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat } = chatState();
   //console.log(selectedChat);
   const toast = useToast();
 
+  // --------------------------STATES -----------------------------
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState();
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  // --------------------------USE EFFECTS AND FUNCTIONS-----------------------------
 
   const getMessages = async () => {
     if (!selectedChat) return;
@@ -25,6 +35,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
+      setLoading(true);
       const { data } = await axios.get(
         `http://localhost:5000/api/message/${selectedChat._id}`,
         config
@@ -33,6 +44,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       console.log(messages);
       setMessages(data);
       setLoading(false);
+
+      socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
         title: "Error. Cannot Get Messages",
@@ -46,11 +59,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    getMessages();
-  }, [selectedChat]);
+    // monitors the socket and takes the information of message received
+
+    socket.on("message received", (newMessageReceived) => {
+      // if chat is not selected or doesn't match current chat
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageReceived.chat._id
+      ) {
+        // give notification to the user
+      } else {
+        setMessages([...messages, newMessageReceived]);
+      }
+    });
+  });
 
   const sendMessage = async (e) => {
     if (e.key === "Enter" && newMessage) {
+      socket.emit("stop typing", selectedChat._id);
       try {
         const config = {
           headers: {
@@ -66,6 +92,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           config
         );
         console.log(data);
+
+        socket.emit("new message", data);
+
         // New message is appended to the messages array
         setMessages([...messages, data]);
       } catch (error) {
@@ -80,11 +109,45 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }
     }
   };
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    /* This is emitting a "setup" event to the server using the socket connection. It sends the `user` object as data along with the event. This event is typically used to set up the initial connection between the client and the server, and it allows the server to associate the socket connection with a specific user. */
+    socket.emit("setup", user);
+    /* This is setting up a listener for the "connection" event emitted by the server. When the server emits the "connection" event, the callback function `() => setSocketConnected(true)` is executed, which sets the state variable `socketConnected` to `true`. This is used to track the status of the socket connection and determine if the socket is connected or not. */
+    socket.on("connected", () => setSocketConnected(true));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
+  }, []);
+
+  useEffect(() => {
+    getMessages();
+
+    // to keep the back up of the selected chat inside selectedChatCompare. Accordingly, we decide if we are supposed to emit the message or we are supposed to give the notification to the user
+    selectedChatCompare = selectedChat;
+  }, [selectedChat]);
+
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 
     // Typing indicator logic
+    if (!socketConnected) return;
+    if (!typing) {
+      setTyping(true);
+      socket.emit("start typing", selectedChat._id);
+    }
+    let lastTypingTime = new Date().getTime();
+    var timerLength = 3000;
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDifference = timeNow - lastTypingTime;
+      if (timeDifference >= timerLength && typing) {
+        socket.emit("stop typing", selectedChat._id);
+        setTyping(false);
+      }
+    }, timerLength);
   };
+
   return (
     <div>
       {selectedChat ? (
@@ -98,32 +161,35 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               onClick={() => setSelectedChat("")}
             />
 
-            {!selectedChat.isGroupChat ? (
-              <>
-                <div className="flex flex-row items-center">
-                  <img
-                    className="object-cover w-10 h-10 rounded-full"
-                    src={getSenderImage(user, selectedChat.users)}
-                    alt="username"
-                  />
-                  <span className="block ml-2 font-bold text-gray-600">
-                    {getSender(user, selectedChat.users)}
-                  </span>
-                  <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"></span>
-                </div>
+            {messages &&
+              (!selectedChat.isGroupChat ? (
+                <>
+                  <div className="flex flex-row items-center">
+                    <img
+                      className="object-cover w-10 h-10 rounded-full"
+                      src={getSenderImage(user, selectedChat.users)}
+                      alt="username"
+                    />
+                    <span className="block ml-2 font-bold text-gray-600">
+                      {getSender(user, selectedChat.users)}
+                    </span>
+                    <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"></span>
+                  </div>
 
-                <ProfileModal user={getSenderFull(user, selectedChat.users)} />
-              </>
-            ) : (
-              <>
-                {selectedChat.chatName.toUpperCase()}
-                <UpdateGroupChatModal
-                  fetchAgain={fetchAgain}
-                  setFetchAgain={setFetchAgain}
-                  getMessages={getMessages}
-                />
-              </>
-            )}
+                  <ProfileModal
+                    user={getSenderFull(user, selectedChat.users)}
+                  />
+                </>
+              ) : (
+                <>
+                  {selectedChat.chatName.toUpperCase()}
+                  <UpdateGroupChatModal
+                    fetchAgain={fetchAgain}
+                    setFetchAgain={setFetchAgain}
+                    getMessages={getMessages}
+                  />
+                </>
+              ))}
           </div>
 
           {/* Middle Chat */}
@@ -139,6 +205,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <ScrollableChat messages={messages} />
             )}
+            {isTyping ? <div>Loading...</div> : <></>}
           </div>
 
           {/* Send Chat Container */}
